@@ -1,0 +1,6 @@
+export default function TaskTable({ tasks, team = false }) {
+  if (!tasks.length) return <p className="py-6 text-slate-500">No tasks in this period.</p>;
+  return <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b"><tr>{(team ? ['Member', 'Department'] : ['Date']).concat(['Task', 'Category', 'Hours', 'Priority', 'Status']).map(label => <th className="p-3" key={label}>{label}</th>)}</tr></thead><tbody>
+    {tasks.map(task => <tr className="border-b border-slate-100 dark:border-slate-700" key={task._id}>{team ? <><td className="p-3">{task.user?.fullName || 'Former member'}</td><td className="p-3">{task.user?.department || '—'}</td></> : <td className="p-3 whitespace-nowrap">{task.taskDate.slice(0, 10)}</td>}<td className="p-3 min-w-48 break-words">{task.taskDescription}{/^https?:\/\//i.test(task.googleDocLink || '') && <a className="block text-blue-600" href={task.googleDocLink} target="_blank" rel="noreferrer">Document ↗</a>}</td><td className="p-3">{task.taskCategory || '—'}</td><td className="p-3">{task.timeSpent || 0}</td><td className="p-3">{task.priority}</td><td className="p-3"><span className="rounded bg-blue-50 px-2 py-1 text-blue-700 whitespace-nowrap">{task.status.replaceAll('_', ' ')}</span></td></tr>)}
+  </tbody></table></div>;
+}

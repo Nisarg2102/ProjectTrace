@@ -26,9 +26,9 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-900 transition-colors duration-300 text-slate-900 dark:text-slate-100">
       <Header toggleSidebar={toggleSidebar} toggleTheme={toggleTheme} theme={theme} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onNavigate={() => setSidebarOpen(false)} />
       
-      <main className={`flex-1 flex flex-col pt-16 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-64'}`}>
+      <main className={`flex-1 flex flex-col pt-16 transition-all duration-300 lg:ml-64`}>
         <div className="flex-1 p-6 overflow-x-hidden">
           {sessionError && <p role="alert" className="error mb-4">{sessionError}</p>}
           <Outlet />

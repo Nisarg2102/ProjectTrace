@@ -12,7 +12,7 @@ Requires Node.js 22+ and MongoDB 7+ running locally (or a MongoDB connection str
 4. Open http://localhost:5173. Register an account, then approve it using `npm run user --prefix backend -- approve person@example.com`.
 5. Optionally create an approved administrator: set `ADMIN_PASSWORD` in your environment and run `npm run user --prefix backend -- create-admin admin@example.com`. `ADMIN_NAME` is optional. Do not put passwords in source files or commit them.
 
-The API defaults to http://localhost:5000/api. Set `VITE_API_URL` in `frontend/.env` and `CLIENT_ORIGIN` in `backend/.env` when using another origin. Restart development servers after changing environment variables.
+The API defaults to http://localhost:5000/api. Set `VITE_API_URL` in `frontend/.env` and `CLIENT_ORIGIN` in `backend/.env` when using another origin. Restart development servers after changing environment variables. If port 5000 is already in use (for example by macOS AirPlay), set `PORT=5050` and `VITE_API_URL=http://localhost:5050/api` in the corresponding environment files.
 
 ## Behavior
 

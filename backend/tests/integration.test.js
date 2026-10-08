@@ -143,3 +143,10 @@ test('presence remains online until the final tab disconnects', async () => {
   assert.ok(!people.some(person => person._id === alice.id));
   observer.disconnect();
 });
+
+test('worklog ranges include sessions that started before the requested day', async () => {
+  await WorkLog.create({ user: alice.id, sessionId: 'midnight-session-0001', loginDateTime: new Date('2026-01-01T23:00:00Z'), logoutDateTime: new Date('2026-01-02T02:00:00Z'), lastSeenAt: new Date('2026-01-02T02:00:00Z') });
+  const result = await request('/worklog?from=2026-01-02&to=2026-01-02');
+  assert.equal(result.status, 200);
+  assert.ok(result.data.some(log => log.sessionId === 'midnight-session-0001'));
+});

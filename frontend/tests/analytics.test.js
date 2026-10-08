@@ -10,3 +10,7 @@ test('overlapping work sessions count once, active sessions stop at last heartbe
   assert.equal(workSeconds([log(10, 40), log(20, 50), log(60, 90)], 100000), 70);
   assert.equal(workSeconds([{ loginDateTime: new Date(10000).toISOString(), lastSeenAt: new Date(40000).toISOString() }], 100000), 30);
 });
+
+test('sessions spanning a date boundary are clipped to the selected period', () => {
+  assert.equal(workSeconds([{ loginDateTime: new Date(0).toISOString(), logoutDateTime: new Date(100000).toISOString() }], 100000, { start: 20000, end: 80000 }), 60);
+});

@@ -1,5 +1,5 @@
 import { apiUrl } from '../utils/api-url';
-export const API_URL = apiUrl(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+export const API_URL = apiUrl(import.meta.env.VITE_API_URL);
 let accessToken = sessionStorage.getItem('progtrack-token') || localStorage.getItem('progtrack-token') || '';
 export const getToken = () => accessToken;
 export function setToken(token, remember = false) {

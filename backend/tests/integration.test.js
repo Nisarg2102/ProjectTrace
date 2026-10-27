@@ -32,7 +32,7 @@ before(async () => {
   ]);
   token = sign(alice);
   server = http.createServer(app);
-  io = new Server(server);
+  io = new Server(server, { cors: require('../config/cors') });
   require('../socket/chatSocket')(io);
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -149,4 +149,29 @@ test('worklog ranges include sessions that started before the requested day', as
   const result = await request('/worklog?from=2026-01-02&to=2026-01-02');
   assert.equal(result.status, 200);
   assert.ok(result.data.some(log => log.sessionId === 'midnight-session-0001'));
+});
+
+test('login preflight allows the exact deployed frontend and localhost', async () => {
+  for (const origin of ['http://localhost:5173', 'https://project-trace-9r7zsba9l-nisarg2102s-projects.vercel.app']) {
+    const response = await fetch(`${base}/api/auth/login`, { method: 'OPTIONS', headers: {
+      Origin: origin,
+      'Access-Control-Request-Method': 'POST',
+      'Access-Control-Request-Headers': 'content-type,authorization'
+    } });
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get('access-control-allow-origin'), origin);
+    assert.match(response.headers.get('access-control-allow-methods'), /POST/);
+    assert.match(response.headers.get('access-control-allow-headers'), /Authorization/i);
+    const login = await fetch(`${base}/api/auth/login`, { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: alice.email, password: 'password123' }) });
+    assert.equal(login.status, 200);
+    assert.equal(login.headers.get('access-control-allow-origin'), origin);
+    const polling = await fetch(`${base}/socket.io/?EIO=4&transport=polling`, { method: 'OPTIONS', headers: { Origin: origin, 'Access-Control-Request-Method': 'GET' } });
+    assert.equal(polling.headers.get('access-control-allow-origin'), origin);
+  }
+});
+test('CORS does not grant access to unrelated origins or similar domain suffixes', async () => {
+  for (const origin of ['https://unrelated.example', 'https://project-trace-9r7zsba9l-nisarg2102s-projects.vercel.app.attacker.example']) {
+    const response = await fetch(`${base}/api/health`, { headers: { Origin: origin } });
+    assert.equal(response.headers.get('access-control-allow-origin'), null);
+  }
 });

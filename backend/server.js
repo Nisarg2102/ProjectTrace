@@ -2,6 +2,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const mongoose = require('mongoose');
 const http = require('http');
 const { Server } = require('socket.io');
+const corsOptions = require('./config/cors');
 const { closeStaleSessions } = require('./controllers/workLogController');
 const app = require('./app');
 async function start() {
@@ -11,7 +12,7 @@ async function start() {
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/progtrack_mern');
   await Promise.all(Object.values(mongoose.models).map(model => model.init()));
   const server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }, maxHttpBufferSize: 16384 });
+  const io = new Server(server, { cors: corsOptions, maxHttpBufferSize: 16384 });
   require('./socket/chatSocket')(io);
   const sweep = setInterval(() => closeStaleSessions().catch(console.error), 30000);
   server.on('error', async error => {

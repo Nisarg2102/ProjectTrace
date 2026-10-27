@@ -14,6 +14,10 @@ Requires Node.js 22+ and MongoDB 7+ running locally (or a MongoDB connection str
 
 The API defaults to http://localhost:5000/api. Set `VITE_API_URL` in `frontend/.env` and `CLIENT_ORIGIN` in `backend/.env` when using another origin. Restart development servers after changing environment variables. If port 5000 is already in use (for example by macOS AirPlay), set `PORT=5050` and `VITE_API_URL=http://localhost:5050/api` in the corresponding environment files.
 
+## Optional local development database
+
+If MongoDB is not installed, run `npm run db --prefix backend` in a separate terminal before starting the API. This uses the development MongoDB launcher, binds only to `127.0.0.1:27017`, and keeps data in `backend/.local-data/mongodb` across restarts. The data directory and local `.env` files are excluded from Git. The first launch may download the MongoDB binary. This launcher is for local development only.
+
 ## Behavior
 
 - Registration always creates an unapproved INTERN; an operator approves users using the CLI. Passwords are bcrypt hashed. JWTs expire after 12 hours, have no fallback secret, and are checked against active/approved users on protected requests.
@@ -32,3 +36,13 @@ The API defaults to http://localhost:5000/api. Set `VITE_API_URL` in `frontend/.
 - `npm run build --prefix frontend`
 
 API routes: `/auth/register`, `/auth/login`, `/auth/me`; `/tasks/today`, `/tasks/history`, `/tasks/team`, `/tasks/submit-daily`, `/tasks/:id`; `/worklog`, `/worklog/start`, `/worklog/heartbeat`, `/worklog/end`; `/chat/messages`; `/health` (all under `/api`).
+
+## Vercel frontend configuration
+
+Import the repository with Root Directory `frontend`, framework Vite, build command `npm run build`, and output directory `dist`. The included `frontend/vercel.json` sends browser routes such as `/login` to the SPA entry point.
+
+Set `VITE_API_URL` to the actual HTTPS backend origin (for example `https://your-backend.example.com`) or its `/api` URL; the client normalizes either form. Redeploy after changing it. All existing requests use the shared client, including login and tasks; this project has no `/api/projects` endpoint.
+
+On the backend host, set `CLIENT_ORIGIN` to the exact frontend HTTPS origin without a trailing slash, `MONGO_URI` to a hosted database connection, and `JWT_SECRET` to a newly generated secret of at least 32 characters. Both HTTP and Socket.IO use `CLIENT_ORIGIN`. Do not deploy with the local MongoDB URI or put backend secrets in `VITE_` variables.
+
+The existing backend is a long-running Node server. A Vercel backend deployment also needs a compatible exported server entry point and external coordination for chat broadcasts/presence across function instances; frontend environment settings alone do not deploy that backend. Local demo accounts do not automatically exist in a hosted database.

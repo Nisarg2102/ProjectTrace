@@ -1,6 +1,7 @@
 const origins = new Set([
   'http://localhost:5173',
   'https://project-trace-beta.vercel.app',
+  'https://project-trace-njgiy1d2n-nisarg2102s-projects.vercel.app',
   'https://project-trace-ny2qt670x-nisarg2102s-projects.vercel.app',
   'https://project-trace-9r7zsba9l-nisarg2102s-projects.vercel.app',
   ...(process.env.CLIENT_ORIGIN || '').split(',').map(origin => origin.trim()).filter(Boolean)

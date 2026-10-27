@@ -3,13 +3,17 @@ const mongoose = require('mongoose');
 const http = require('http');
 const { Server } = require('socket.io');
 const corsOptions = require('./config/cors');
+const { connectDatabase } = require('./config/database');
 const { closeStaleSessions } = require('./controllers/workLogController');
 const app = require('./app');
 async function start() {
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32 || process.env.JWT_SECRET.startsWith('replace-')) {
     throw new Error('Set JWT_SECRET to a random secret of at least 32 characters in backend/.env');
   }
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/progtrack_mern');
+  if (!process.env.MONGO_URI && process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    process.env.MONGO_URI = 'mongodb://127.0.0.1:27017/progtrack_mern';
+  }
+  await connectDatabase();
   await Promise.all(Object.values(mongoose.models).map(model => model.init()));
   const server = http.createServer(app);
   const io = new Server(server, { cors: corsOptions, maxHttpBufferSize: 16384 });
